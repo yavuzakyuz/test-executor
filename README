@@ -1,0 +1,42 @@
+# System Architecture 
+
+
+# Complete installation steps
+
+### Install golang/protobuf for running proto for go (https://grpc.io/docs/languages/go/quickstart/#prerequisites)
+
+homebrew (for my local system): 
+$ brew install protobuf
+linux: 
+$ sudo apt install -y protobuf-compiler
+ 
+### Export path -if not done before- so protoc can use go plugins
+
+$ export PATH="$PATH:$(go env GOPATH)/bin"
+
+### Install go protoc plugins for generating boilerplates 
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+$ go install google.golang.org/grpc/cmd protoc-gen-go-grpc@latest
+
+
+# Folder structure 
+
+We have 4 directories for the project:  
+
+insider-testops-yavuz/
+│
+├── controller/       
+│   ├── main.go      
+│   └── go.mod        
+│
+├── worker/          
+│   ├── main.go       
+│   └── go.mod        
+│
+├── proto/            
+│   ├── test.proto   
+│
+│
+├── deployment/            
+    ├── terraform
+    ├── cluster
