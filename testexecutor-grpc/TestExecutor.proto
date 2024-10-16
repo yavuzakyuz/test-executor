@@ -1,0 +1,17 @@
+syntax = "proto3"; 
+
+package insider_test_executor; 
+
+option go_package = "./proto/insider_test_executor";
+
+service TestExecutor {
+  rpc StartHandshake (HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest {
+  string message = 1;
+}
+
+message HelloResponse {
+  string response = 1;  
+}

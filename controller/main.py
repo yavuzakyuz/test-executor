@@ -1,23 +1,17 @@
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from generic_page import GenericPage, Actions
 from selenium.webdriver.chrome.options import Options
-from helpers import run_test
-import os 
-import time # had to use for simulating real-user clicks some js stuff doesn't work well with selenium functions
+import time # had to use for simulating real-user clicks some js stuff (like selector2) doesn't work well with selenium functions
 
-from selenium.common.exceptions import TimeoutException
+from insider_py_wrapper.helpers import run_test
+from insider_py_wrapper.generic_page import GenericPage, Actions
 
-# grab the env value selenium url (headless chrome svc address)
-selenium_url = os.getenv("SELENIUM_URL", "http://localhost:4444/wd/hub")
-
-#################################
-####### Driver Selection ########
-#################################
-
-# importing browser drive / here parametrize this from req. file
+###############################
+####### Driver Options ########
+###############################
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -29,16 +23,9 @@ driver = webdriver.Chrome(
    options=chrome_options
 )
 
-# driver = webdriver.Remote(
-#     command_executor=selenium_url,
-#     options=chrome_options
-# )
-
 window_size = driver.get_window_size()
 print(f"Window Width: {window_size['width']}")
 print(f"Window Height: {window_size['height']}")
-
-# driver = webdriver.Chrome()
 
 #################################
 ####### Init GenericPage ########
@@ -147,7 +134,7 @@ def test_filter_qa_jobs():
     success = homepage.perform_action_on_visible_element(7, By.XPATH, "//li[contains(text(), 'Quality Assurance')]", Actions.CLICK, "Quality Assurance selection")
     assert success, "Can't select qa from dropdown"
 
-    time.sleep(5)
+    time.sleep(10)
 
     # get job listing blocks 
     job_listings = homepage.get_all_elements(By.CSS_SELECTOR, "div.position-list-item", "Job Listings")
@@ -190,9 +177,10 @@ def test_filter_qa_jobs():
         assert homepage.is_page_loaded(10, By.XPATH, "//title[contains(text(), 'Insider')]"), "Can't go back to insider page"
         print("back to qa page for testing other job listings (if exists)")
 
-# Running Tests - run_test(<Descriotion for logging>, <Defined test function()>)
+# running Tests - run_test(<Descriotion for logging>, <Defined test function()>)
 run_test("Test: home page loaded", test_homepage_opened)
 run_test("Test cookie banner decline all", test_decline_cookies)
 run_test("Test: navigate to careers", test_navigate_to_careers)
 run_test("Test: filter QA jobs", test_filter_qa_jobs)
+print("all jobs ran, results are printed out")
 driver.quit() 
