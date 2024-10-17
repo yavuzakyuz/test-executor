@@ -22,7 +22,7 @@ type WorkerInfo struct {
 // gRPC server struct
 type server struct {
 	pb.UnimplementedTestExecutorServer
-	mu         sync.Mutex            // mutex for race condition
+	mu         sync.Mutex            // mutex for the race condition (not sure if it'll happen for our case)
 	workers    map[string]WorkerInfo // worker uuid map for lookups
 	workerList []string              // slice because map didn't keep the worker join order
 	nextWorker int                   // keeps track of the next worker to receive a task (basic RR scheduling, can be improved)
@@ -38,7 +38,7 @@ func (s *server) StartHandshake(ctx context.Context, req *pb.HandshakeRequest) (
 		ID: workerID,
 	}
 	s.workers[workerID] = workerInfo
-	s.workerList = append(s.workerList, workerID) // Add worker to list
+	s.workerList = append(s.workerList, workerID) // add worker to list
 	fmt.Printf("a new worker joined to the queue! - worker-%s\n", workerID)
 
 	return &pb.HandshakeResponse{Response: "handshake acknowledged"}, nil
