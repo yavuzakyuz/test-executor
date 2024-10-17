@@ -1,1 +1,37 @@
- .DS_Store
+*.DS_Store
+# my own ec2 key
+*ec2 
+
+go.sum
+
+#Ignore Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Ignore crash logs
+crash.log
+crash.*
+
+# Ignore Terraform variable override files
+*.tfvars
+*.tfvars.json
+
+# Ignore Terraform plan files
+*.tfplan
+
+# Ignore the .terraform directory in all subdirectories (for Terraform cache and modules)
+**/.terraform/
+.terraform/
+
+# Ignore the .terraform.lock.hcl file (optional: keep if you want to lock module versions)
+.terraform.lock.hcl
+
+# Ignore generated SSH keys
+*.pem
+*.pub
+
+# Ignore any backup files created by Terraform
+*.backup
+
+# Ignore Terraform logs
+terraform.log
