@@ -1,17 +1,30 @@
-syntax = "proto3"; 
+syntax = "proto3";
 
-package insider_test_executor; 
+package testgrpc;
 
-option go_package = "./proto/insider_test_executor";
+option go_package = "insider-test-executor/testexecutor-grpc";
 
+// Service definition for handling workers and tasks
 service TestExecutor {
-  rpc StartHandshake (HelloRequest) returns (HelloResponse);
+  rpc StartHandshake (HandshakeRequest) returns (HandshakeResponse);
+  rpc ReceiveTask (Empty) returns (TaskResponse);
 }
 
-message HelloRequest {
-  string message = 1;
+// Message for the worker's handshake with the controller
+message HandshakeRequest {
+  string message = 1; // A message from the worker (e.g., worker ID)
 }
 
-message HelloResponse {
-  string response = 1;  
+message HandshakeResponse {
+  string response = 1; // Controller's acknowledgment of the handshake
+}
+
+// Empty message (used when the worker waits for tasks without providing input)
+message Empty {}
+
+// Message used by the controller to send tasks to workers
+message TaskResponse {
+  string filename = 1;  // Name of the Python file
+  bytes content = 2;    // The content of the Python file (as bytes)
+  string message = 3;   // Any additional task-related message (optional)
 }

@@ -4,7 +4,7 @@
 // - protoc             v5.28.2
 // source: TestExecutor.proto
 
-package insider_test_executor
+package testexecutor_grpc
 
 import (
 	context "context"
@@ -19,14 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TestExecutor_StartHandshake_FullMethodName = "/insider_test_executor.TestExecutor/StartHandshake"
+	TestExecutor_StartHandshake_FullMethodName = "/testgrpc.TestExecutor/StartHandshake"
+	TestExecutor_ReceiveTask_FullMethodName    = "/testgrpc.TestExecutor/ReceiveTask"
 )
 
 // TestExecutorClient is the client API for TestExecutor service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Service definition for handling workers and tasks
 type TestExecutorClient interface {
-	StartHandshake(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	StartHandshake(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*HandshakeResponse, error)
+	ReceiveTask(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*TaskResponse, error)
 }
 
 type testExecutorClient struct {
@@ -37,10 +41,20 @@ func NewTestExecutorClient(cc grpc.ClientConnInterface) TestExecutorClient {
 	return &testExecutorClient{cc}
 }
 
-func (c *testExecutorClient) StartHandshake(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+func (c *testExecutorClient) StartHandshake(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*HandshakeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(HelloResponse)
+	out := new(HandshakeResponse)
 	err := c.cc.Invoke(ctx, TestExecutor_StartHandshake_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *testExecutorClient) ReceiveTask(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*TaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TaskResponse)
+	err := c.cc.Invoke(ctx, TestExecutor_ReceiveTask_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +64,11 @@ func (c *testExecutorClient) StartHandshake(ctx context.Context, in *HelloReques
 // TestExecutorServer is the server API for TestExecutor service.
 // All implementations must embed UnimplementedTestExecutorServer
 // for forward compatibility.
+//
+// Service definition for handling workers and tasks
 type TestExecutorServer interface {
-	StartHandshake(context.Context, *HelloRequest) (*HelloResponse, error)
+	StartHandshake(context.Context, *HandshakeRequest) (*HandshakeResponse, error)
+	ReceiveTask(context.Context, *Empty) (*TaskResponse, error)
 	mustEmbedUnimplementedTestExecutorServer()
 }
 
@@ -62,8 +79,11 @@ type TestExecutorServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTestExecutorServer struct{}
 
-func (UnimplementedTestExecutorServer) StartHandshake(context.Context, *HelloRequest) (*HelloResponse, error) {
+func (UnimplementedTestExecutorServer) StartHandshake(context.Context, *HandshakeRequest) (*HandshakeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartHandshake not implemented")
+}
+func (UnimplementedTestExecutorServer) ReceiveTask(context.Context, *Empty) (*TaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReceiveTask not implemented")
 }
 func (UnimplementedTestExecutorServer) mustEmbedUnimplementedTestExecutorServer() {}
 func (UnimplementedTestExecutorServer) testEmbeddedByValue()                      {}
@@ -87,7 +107,7 @@ func RegisterTestExecutorServer(s grpc.ServiceRegistrar, srv TestExecutorServer)
 }
 
 func _TestExecutor_StartHandshake_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
+	in := new(HandshakeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +119,25 @@ func _TestExecutor_StartHandshake_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: TestExecutor_StartHandshake_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TestExecutorServer).StartHandshake(ctx, req.(*HelloRequest))
+		return srv.(TestExecutorServer).StartHandshake(ctx, req.(*HandshakeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TestExecutor_ReceiveTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TestExecutorServer).ReceiveTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TestExecutor_ReceiveTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TestExecutorServer).ReceiveTask(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -108,12 +146,16 @@ func _TestExecutor_StartHandshake_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TestExecutor_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "insider_test_executor.TestExecutor",
+	ServiceName: "testgrpc.TestExecutor",
 	HandlerType: (*TestExecutorServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "StartHandshake",
 			Handler:    _TestExecutor_StartHandshake_Handler,
+		},
+		{
+			MethodName: "ReceiveTask",
+			Handler:    _TestExecutor_ReceiveTask_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

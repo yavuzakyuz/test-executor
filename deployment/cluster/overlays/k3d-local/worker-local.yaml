@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  completions: 1  # Run the job 3 times (similar to replicas)
+  parallelism: 1  # Number of pods running in parallel
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: k3d-k3d-registry.local:5100/worker:beta-v2
+          imagePullPolicy: Always
+      restartPolicy: Never  # Ensure worker runs once

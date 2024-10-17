@@ -1,7 +1,7 @@
 # first stage - generate protoc boilerplates
 FROM golang:1.23-alpine AS build-proto
 
-RUN apk add --no-cache git bash protobuf protobuf-dev
+RUN apk add --no-cache git bash protobuf
     
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0

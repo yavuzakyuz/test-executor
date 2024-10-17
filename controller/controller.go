@@ -61,18 +61,20 @@ func (s *server) ReceiveTask(ctx context.Context, req *pb.Empty) (*pb.TaskRespon
 	// update the nextWorker counter to the next one in line for the next task
 	s.nextWorker = (s.nextWorker + 1) % len(s.workers)
 
-	fmt.Printf("sending task to worker %s\n", worker.ID)
+	fmt.Printf("\nsending task to worker %s\n", worker.ID)
 
 	// read the test py script (same dir)
-	pyFile := "main.py"
+	pyFile := "controller/tests/basic.py"
 	fileContent, err := os.ReadFile(pyFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read python file. Is the file in the same dir?: %v", err)
+		return nil, fmt.Errorf("failed to read tests from tests dir. Are the test files present?: %v", err)
 	}
+
+	fmt.Printf("test cases are collected from tests dir: %s", pyFile)
 
 	// send the test file to the worker & command run
 	return &pb.TaskResponse{
-		Filename: pyFile,
+		Filename: "basic.py",
 		Content:  fileContent,
 		Message:  "run the test script",
 	}, nil
@@ -80,6 +82,9 @@ func (s *server) ReceiveTask(ctx context.Context, req *pb.Empty) (*pb.TaskRespon
 
 func main() {
 	// grpc server on 50051
+	fmt.Printf("Started accepting worker nodes")
+	fmt.Printf("Loaded files")
+
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("can't listen on port 50051: %v", err)

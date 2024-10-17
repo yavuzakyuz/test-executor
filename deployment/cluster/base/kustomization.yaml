@@ -1,0 +1,9 @@
+namespace: test-executor
+
+resources:
+  - namespace.yaml
+  - controller-deployment.yaml
+  - controller-service.yaml
+  - worker-deployment.yaml
+  - worker-service.yaml
+

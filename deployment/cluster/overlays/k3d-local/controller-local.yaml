@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller
+spec:
+  template:
+    spec:
+      containers:
+        - name: controller
+          image: k3d-k3d-registry.local:5100/controller:beta-v12
+          imagePullPolicy: Always

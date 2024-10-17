@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  completions: 1  # Number of times to run the job, equivalent to replicas in Deployment
+  parallelism: 1  # Number of pods to run in parallel
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: worker:beta
+        ports:
+        - containerPort: 50052
+        env:
+        - name: CONTROLLER_URL
+          value: "controller-service:50051"  # Kubernetes DNS for inter-pod communication
+        resources:
+          requests:
+            memory: "1224Mi"  # Minimum memory for the container
+            cpu: "700m"      # Minimum CPU for the container
+          limits:
+            memory: "2248Mi"  # Maximum memory for the container
+            cpu: "1000m"      # Maximum CPU for the container
+      restartPolicy: Never  # Job pods run only once and don't restart
