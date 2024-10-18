@@ -46,6 +46,8 @@ There're two golang separate applications using gRPC to communicate:
 
 this setup allows one controller to connect to n workers simultaneously, and distribute scanned test cases using a very basic Round-Robin algorithm implementation
 
+![system-overview](./images/system-overview.png)
+
 ### Inter-pod communication
 for the communication between controller and workers: when any worker is created, first it will look for a controller to bind to (this is passed as env value CONTROLLER_URL via kubernetes job yamls in the runtime). After binding, it'll initate a handshake with it's unique UUID, controller will respond to handshake and adds it to it's available_node list. 
 
@@ -82,7 +84,7 @@ It can be run directly via python:
 5. > pip3 install -r ./insider_py_wrapper/requirements.txt 
 6. > python3 main.py 
 
-### Sample test run
+### Sample test run
 
 ![sample-run](./images/sample-run.png)
 
@@ -124,8 +126,7 @@ Since controller already does:
 The deployment script is only running running kustomize script: "kubectl apply -k . " inside the dir: deployment/cluster/overlays/eks
 and node count can be modified in deployment/cluster/overlays/eks/worker-aws.yaml
 
-
-# Challenges
+# Challenges
 
 1-When CSS selector returns multiple elements, it may not fetch all of the elements when it's executed. Sometimes it was timing out before  required element was found  (https://stackoverflow.com/questions/22710154/python-selenium-implicit-wait-for-multiple-elements) -> Solved by creating additional function to store all elements
 
