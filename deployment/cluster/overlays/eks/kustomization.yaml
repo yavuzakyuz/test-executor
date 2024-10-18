@@ -1,0 +1,8 @@
+namespace: test-executor
+
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - controller-aws.yaml
+  - worker-aws.yaml

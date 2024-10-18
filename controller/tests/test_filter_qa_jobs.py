@@ -68,12 +68,15 @@ life_section_css_selector = "[aria-label^='life-at-insider']"
 # will write Clicked element: Company Menu, or Fail and logs: Error: Element Company Menu is not visible or interactable for action '{action}'
 
 # Test Case: go to career page, do filtering (Step 3)
+
+#################################
+####### Init GenericPage ########
+#################################
+    
+homepage = GenericPage(driver, "https://useinsider.com/careers/quality-assurance/")
+
 def test_filter_qa_jobs():
 
-    #################################
-    ####### Init GenericPage ########
-    #################################
-    homepage = GenericPage(driver, "https://useinsider.com/careers/quality-assurance/")
     
     assert homepage.is_page_loaded(10, By.XPATH, "//h1[contains(text(), 'Quality Assurance')]"), "QA page failed to load"
 
@@ -126,8 +129,8 @@ def test_filter_qa_jobs():
         
         print(department, "+", location)
         
-        assert "Quality Assurance" in department, f"Job Department does not contain 'Quality Assurance', it contains: {department}"
-        assert "Istanbul, Turkey" in location, f"Job Location does not contain 'Istanbul, Turkey': {location}"
+        assert "Quality Assurance" in department, f"job Department does not contain 'Quality Assurance', it contains: {department}"
+        assert "Istanbul, Turkey" in location, f"job Location does not contain 'Istanbul, Turkey': {location}"
        
         # hover on the selected job so "view role is visible"
         homepage.perform_action(job, Actions.CLICK, "Hovering over the job listing")
@@ -140,12 +143,12 @@ def test_filter_qa_jobs():
         WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
         driver.switch_to.window(driver.window_handles[-1])
 
-        # NOTE: Create GenericPage function for checking if url contains blabla for the below code: 
+        # NOTE: create GenericPage function for checking if url contains blabla for the below code: (skipped, not needed)
         try:
-                # assert url to has lever
+                # assert url to has lever - this has problems in kubernetes, the container works perfectly on my host but on k8s node it didn't work initially
                 assert WebDriverWait(homepage.driver, 20).until(
                     expected_conditions.url_contains("lever.co")
-                ), "Job didn't show role in Lever.co"
+                ), "job didn't show role in Lever.co"
                 
                 print(f"Success: redirected to lever.co for {department} role")
 

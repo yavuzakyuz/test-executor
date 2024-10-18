@@ -6,6 +6,8 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	pb "insider-test-executor/testexecutor-grpc"
@@ -26,6 +28,7 @@ type server struct {
 	workers    map[string]WorkerInfo // worker uuid map for lookups
 	workerList []string              // slice because map didn't keep the worker join order
 	nextWorker int                   // keeps track of the next worker to receive a task (basic RR scheduling, can be improved)
+	testCases  []string              // test cases under controler/tests
 }
 
 // wait handshake
@@ -44,6 +47,21 @@ func (s *server) StartHandshake(ctx context.Context, req *pb.HandshakeRequest) (
 	return &pb.HandshakeResponse{Response: "handshake acknowledged"}, nil
 }
 
+func loadTestCases(testDir string) ([]string, error) {
+	files, err := os.ReadDir(testDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read tests directory: %v", err)
+	}
+
+	var testCases []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".py") {
+			testCases = append(testCases, filepath.Join(testDir, file.Name()))
+		}
+	}
+	return testCases, nil
+}
+
 // send and wait for a worker to receive a task (test py file)
 func (s *server) ReceiveTask(ctx context.Context, req *pb.Empty) (*pb.TaskResponse, error) {
 	s.mu.Lock()
@@ -51,39 +69,53 @@ func (s *server) ReceiveTask(ctx context.Context, req *pb.Empty) (*pb.TaskRespon
 
 	// check if any workers are available
 	if len(s.workers) == 0 {
-		return nil, fmt.Errorf("no workers available, are you sure any are alive?")
+		return nil, fmt.Errorf("no workers available")
+	}
+
+	// check if there are test cases available
+	if len(s.testCases) == 0 {
+		return nil, fmt.Errorf("no test cases available")
 	}
 
 	// select the next worker for the next task
-	workerID := s.workerList[s.nextWorker]
+	workerID := s.workerList[s.nextWorker%len(s.workerList)] // Round-robin selection even with one worker
 	worker := s.workers[workerID]
 
-	// update the nextWorker counter to the next one in line for the next task
-	s.nextWorker = (s.nextWorker + 1) % len(s.workers)
-
-	fmt.Printf("\nsending task to worker %s\n", worker.ID)
-
-	// read the test py script (same dir)
-	pyFile := "controller/tests/basic.py"
-	fileContent, err := os.ReadFile(pyFile)
+	// choose the test case to send (wrap around the test cases if one worker)
+	testFile := s.testCases[s.nextWorker%len(s.testCases)]
+	fileContent, err := os.ReadFile(testFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read tests from tests dir. Are the test files present?: %v", err)
+		return nil, fmt.Errorf("failed to read test file: %v", err)
 	}
 
-	fmt.Printf("test cases are collected from tests dir: %s", pyFile)
+	fmt.Printf("sending task '%s' to worker-%s\n", testFile, worker.ID)
 
-	// send the test file to the worker & command run
+	// update the nextWorker counter to distribute the next task
+	s.nextWorker = (s.nextWorker + 1) % len(s.testCases) // wrap around the test cases
+
+	// send the test file to the worker
 	return &pb.TaskResponse{
-		Filename: "basic.py",
+		Filename: filepath.Base(testFile),
 		Content:  fileContent,
 		Message:  "run the test script",
 	}, nil
 }
 
 func main() {
+	// load all test cases from the tests folder
+	testCases, err := loadTestCases("controller/tests")
+	if err != nil {
+		log.Fatalf("failed to load test cases: %v", err)
+	}
+
+	// print loaded cases
+	fmt.Printf("loaded %d test cases:\n", len(testCases))
+	for _, testCase := range testCases {
+		fmt.Printf(" - %s\n", filepath.Base(testCase))
+	}
+
 	// grpc server on 50051
-	fmt.Printf("Started accepting worker nodes")
-	fmt.Printf("Loaded files")
+	fmt.Printf("Started accepting worker nodes\n")
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
@@ -93,8 +125,9 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterTestExecutorServer(s, &server{
 		workers:    make(map[string]WorkerInfo),
-		workerList: []string{}, // worker list init
-		nextWorker: 0,          // worker counter init
+		workerList: []string{},
+		nextWorker: 0,
+		testCases:  testCases, // pass the loaded test cases to the server
 	})
 
 	fmt.Println("controller waiting for workers on port 50051...")

@@ -3,15 +3,26 @@ kind: Job
 metadata:
   name: worker
 spec:
-  completions: 1  # Run the job 3 times (similar to replicas)
-  parallelism: 1  # Number of pods running in parallel
+  completions: 1  # node_count parameter \ similar to replicas for deployments
+  parallelism: 1 
   template:
     metadata:
       labels:
         app: worker
     spec:
       containers:
-        - name: worker
-          image: k3d-k3d-registry.local:5100/worker:beta-v2
-          imagePullPolicy: Always
-      restartPolicy: Never  # Ensure worker runs once
+      - name: worker
+        image: k3d-k3d-registry.local:5100/worker:beta-v14
+        ports:
+        - containerPort: 50052
+        env:
+        - name: CONTROLLER_URL
+          value: "controller-service:50051"  
+        resources:
+          requests:
+            memory: "1224Mi"  
+            cpu: "700m"     
+          limits:
+            memory: "2248Mi"  
+            cpu: "1000m"     
+      restartPolicy: Never 

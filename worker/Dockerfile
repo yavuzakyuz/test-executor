@@ -41,7 +41,7 @@ RUN export PATH=$PATH:/go/bin && echo $PATH
     
 
 WORKDIR /app/testexecutor-grpc
-RUN protoc --plugin=~/go/bin/protoc-gen-go --go_out=../ --plugin=/go/bin/protoc-gen-go-grpc --go-grpc_out=../ TestExecutor.proto
+##RUN protoc --plugin=~/go/bin/protoc-gen-go --go_out=../ --plugin=/go/bin/protoc-gen-go-grpc --go-grpc_out=../ TestExecutor.proto
     
 WORKDIR /app
    

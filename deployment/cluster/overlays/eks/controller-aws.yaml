@@ -7,5 +7,5 @@ spec:
     spec:
       containers:
         - name: controller
-          image: k3d-k3d-registry.local:5100/controller:beta-v14
+          image: /test-case-controller:production
           imagePullPolicy: Always

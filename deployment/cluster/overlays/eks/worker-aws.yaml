@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  completions: 1  # same thing with replicas, modify this for node_count
+  parallelism: 1  
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: chrome-node:production
+          imagePullPolicy: Always
+      restartPolicy: Never # run once any worker
