@@ -4,12 +4,16 @@ metadata:
   name: worker
 spec:
   completions: 1  # node_count parameter \ similar to replicas for deployments
-  parallelism: 1 
+  parallelism: 1
   template:
     metadata:
       labels:
         app: worker
     spec:
+      initContainers:
+      - name: wait-for-controller
+        image: busybox:1.28.4 # https://github.com/kubernetes/kubernetes/issues/66924 newer versions don't work
+        command: ['sh', '-c', 'until nslookup controller-service; do echo waiting for controller; sleep 5; done; echo controller found!']
       containers:
       - name: worker
         image: k3d-k3d-registry.local:5100/worker:beta-v14
@@ -17,12 +21,12 @@ spec:
         - containerPort: 50052
         env:
         - name: CONTROLLER_URL
-          value: "controller-service:50051"  
+          value: "controller-service:50051"
         resources:
           requests:
-            memory: "1224Mi"  
-            cpu: "700m"     
+            memory: "1224Mi"
+            cpu: "700m"
           limits:
-            memory: "2248Mi"  
-            cpu: "1000m"     
-      restartPolicy: Never 
+            memory: "2248Mi"
+            cpu: "1000m"
+      restartPolicy: Never

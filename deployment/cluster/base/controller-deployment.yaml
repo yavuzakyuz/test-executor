@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: controller
-        image: k3d-k3d-registry.local:5100/worker:beta-v14
+        image: k3d-k3d-registry.local:5100/controller:beta-v14
         ports:
         - containerPort: 50051
         env:

@@ -1,6 +1,6 @@
 # System Architecture 
 
-# Folder structure 
+## Folder structure 
 
 We have 4 main directories inside the project:  
 
@@ -126,6 +126,33 @@ Since controller already does:
 The deployment script is only running running kustomize script: "kubectl apply -k . " inside the dir: deployment/cluster/overlays/eks
 and node count can be modified in deployment/cluster/overlays/eks/worker-aws.yaml
 
+# Logs / Demo
+
+Cases are defined in two test scripts: test_homepage_navigation.py and test_filter_qa_jobs.py so these are ran in parallel in two nodes
+
+### Deployment logs:
+
+![get-all](./images/get-all.png)
+
+### Controller logs:
+
+![controller-logs](./images/controller-logs.png)
+
+### test_homepage_navigation.py logs: 
+
+!![test1-logs](./images/test1-logs.png)
+
+### test_filter_qa_jobs.py logs: 
+
+!![test2-logs](./images/test2-logs.png)
+
+### complete logs in multiple windows: 
+
+!![logs-complete](./images/logs-complete.png)
+
+--- 
+
+
 # Challenges
 
 1-When CSS selector returns multiple elements, it may not fetch all of the elements when it's executed. Sometimes it was timing out before  required element was found  (https://stackoverflow.com/questions/22710154/python-selenium-implicit-wait-for-multiple-elements) -> Solved by creating additional function to store all elements
@@ -134,11 +161,11 @@ and node count can be modified in deployment/cluster/overlays/eks/worker-aws.yam
 
 3- selenium is_displayed() doesn't work with custom select2 library for the location/department dropdown This was difficult to find -> solved by spamming clicks on the arrow until js loaded the dropdown fully, selenium functions didn't work with it as mentioned in the: https://stackoverflow.com/questions/17753996/handling-select2-with-selenium-webdriver
 
-4- Image building: There were a lot of version mismatches for building all of python3, go, selenium, proto and etc. with base images that had the required go and selenium-chrome binaries, also my host is ARM and that caused a lot of problems in docker manifests --> Solved with a lot of testing
+4- Image building: There were a lot of version mismatches for building all of python3, go, selenium, proto and etc. with base images that had the required go and selenium-chrome binaries, also my host is ARM and that caused a lot of problems in docker manifests because it keeps appending ARM based metadata to the builded images/and ECR shows the image as index --> solved with a lot of testing
 
 5- Buttons not clickable 
 
-Added chrome.options viewport and move with offset for action performer function  -->  Not solved, still causes problem for the last test when ran on the kubernetes cluster... The same image 
+Added chrome.options viewport and move with offset for action performer function  -->  Not completely solved, still causes problem for the last test when ran on the kubernetes cluster... The same image 
 
 6- Performance issues
 
@@ -182,11 +209,11 @@ had 1.21 as the latest golang available in apt-get repo
 which didn't include slices and wasn't compatible with 
 latest stable grpc plugins in golang, installed via ppa: https://go.dev/wiki/Ubuntu
 
-#### Controller 
+### Controller 
 $ docker build -t controller:beta -f ./controller/Dockerfile .
 $ docker run -d --name controller:beta -p 50051:50051 test-controller
 
-#### Worker
+### Worker
 macos (arm64): 
 docker build -t worker:beta -f ./worker/Dockerfile . --platform linux/amd64
 docker run -d -p 50052:50052 --platform linux/amd64 worker:beta 
@@ -194,3 +221,10 @@ linux:
 docker build -t worker:beta -f ./worker/Dockerfile .
 docker run -d worker:beta -p 50052:50052
 
+
+# Future Improvements
+
+- Worker container size is huge, it can be reduced
+- Some binaries can be updated
+- Better scheduling for controller 
+- PVC mount for controller so tests can be added without redeploying controller
