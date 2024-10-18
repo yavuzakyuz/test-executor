@@ -110,9 +110,11 @@ It can be run directly via python:
 5. Push images to ECR with deployment/terraform/push_to_ecr.sh (add ECR_URL from terraform apply output, and change the region for docker login)
 6. SSH into EC2 for accessing kubectl (ssh -i "~/.ssh/my-aws-key" ec2-user@<EC2_PUBLIC_IP>) and clone the repository for kustomize YAML files ->> git clone https://github.com/yavuzakyuz/test-executor.git 
 7. install kubectl, configure aws credentials to access the cluster (https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html#linux_amd64_kubectl)
-7. go to "deployment/cluster/overlays/eks" and fix the image addresses according to newly created ECR URL for worker-local.yaml and controller-local.yaml
-8. run "kubectl apply -k ." in the overlays/eks dir, kustomize is included in kubectl so no additional install needed
-9. now the controller and worker will be deployed, to change the node_count of workers, modify worker count in deployment/cluster/overlays/eks/worker-aws.yaml
+ > aws configure -> create user with defined scope on EKS & attach administrator policy
+ > aws eks --region eu-north-1 update-kubeconfig --name insider-test-executer-cluster
+8. go to "deployment/cluster/overlays/eks" and fix the image addresses according to newly created ECR URL for worker-local.yaml and controller-local.yaml (since I'm pushing to public, I redacted them)
+9. run "kubectl apply -k ." in the overlays/eks dir, kustomize is included in kubectl so no additional install needed
+10. now the controller and worker will be deployed, to change the node_count of workers, modify worker count in deployment/cluster/overlays/eks/worker-aws.yaml
 
 * I used t3.micro instead of t2.micro, it wasn't  available in eu-north-1
 

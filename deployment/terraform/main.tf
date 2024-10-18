@@ -1,6 +1,6 @@
 
 locals {
-  localip = ["78.79.224.193/32"] # to allow ssh to ec2 on 22 inbound
+  localip = [""] # to allow ssh to ec2 on 22 inbound
 }
 
 #############################
