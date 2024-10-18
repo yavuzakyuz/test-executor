@@ -4,9 +4,9 @@
 
 We have 4 main directories inside the project:  
 
+```bash
 test-executor/
-│
-├── controller/       
+├── controller/
 │   ├── test-full-definition/
 │   │   ├── insider_py_wrapper/
 │   │   ├── main.py
@@ -15,32 +15,27 @@ test-executor/
 │   │   ├── test_filter_qa_jobs.py
 │   └── controller.go
 │   └── Dockerfile
-│
-├── worker/          
+├── worker/
 │   ├── insider_py_wrapper/
 │   │   ├── generic_page.py
 │   │   ├── helpers.py
 │   │   ├── requirements.txt
-│   │
-│   └── worker.go      
+│   └── worker.go
 │   └── Dockerfile
-│
-├── testexecutor-grpc/            
-│   ├── TestExecutor.proto   
+├── testexecutor-grpc/
+│   ├── TestExecutor.proto
 │   ├── TestExecutor_grpc.pb.go
-│   ├─ TestExecutor.pb.go
-│
-│
-├── deployment/            
+│   ├── TestExecutor.pb.go
+├── deployment/
 │   ├── terraform/
-│   ├── cluster
+│   │   ├── cluster
 │   │   ├── base/
 │   │   ├── overlays/
-│
 ├── go.mod
 ├── go.sum
 ├── push.sh
 ├── .gitignore
+```
 
 # System Overview
 
@@ -70,10 +65,12 @@ so worker node application searches for address "controller-service:50051" to in
 - insider_py_wrapper consists of helpers, generic_page.py class and it's built-in functions. There are comments for better explanation in the code
 - The structure is drafted according to Page Object Model (POM - https://www.selenium.dev/documentation/test_practices/encouraged/page_object_models/) test files only consists of locators and steps. Rest is done via wrapper functions, so more complex logic would be kept in the wrapper library for more complex test cases
 
+```bash
 ├── insider_py_wrapper/
 │   │   ├── generic_page.py
 │   │   ├── helpers.py
 │   │   ├── requirements.txt
+```
 
 the test-full-definition folder consists a complete implementation of the tests, not related to program function, just to combine all tests. 
 It can be run directly via python: 
@@ -136,7 +133,7 @@ and node count can be modified in deployment/cluster/overlays/eks/worker-aws.yam
 
 3- selenium is_displayed() doesn't work with custom select2 library for the location/department dropdown This was difficult to find -> solved by spamming clicks on the arrow until js loaded the dropdown fully, selenium functions didn't work with it as mentioned in the: https://stackoverflow.com/questions/17753996/handling-select2-with-selenium-webdriver
 
-4- Image building: There were a lot of version mismatches for building all of python3, go, selenium, proto and etc. with base images that had the required go and selenium-chrome binaries --> Solved with a lot of testing
+4- Image building: There were a lot of version mismatches for building all of python3, go, selenium, proto and etc. with base images that had the required go and selenium-chrome binaries, also my host is ARM and that caused a lot of problems in docker manifests --> Solved with a lot of testing
 
 5- Buttons not clickable 
 
@@ -146,7 +143,6 @@ Added chrome.options viewport and move with offset for action performer function
 
 The headless selenium chrome image is super resource extensive, kube top was showing 800-900 memory and cpu and it was just stopping in the middle of the tests with no timeout, no logging. 
 --> Then I put limit and realized OOMkill was happening. So increased the requests, and limits. IF the test size is small no issue, but current values support our most complex test (qa filter dropdown test)
-
 
 # Complete installation steps for local
 
