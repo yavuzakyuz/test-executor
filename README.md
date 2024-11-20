@@ -165,7 +165,7 @@ Cases are defined in two test scripts: test_homepage_navigation.py and test_filt
 
 5- Buttons not clickable 
 
-Added chrome.options viewport and move with offset for action performer function  -->  Not completely solved, still causes problem for the last test when ran on the kubernetes cluster... The same image 
+Added chrome.options viewport and move with offset for action performer function  -->  Solved.
 
 6- Performance issues
 
